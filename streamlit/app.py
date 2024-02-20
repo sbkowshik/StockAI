@@ -35,6 +35,8 @@ agent_executor = AgentExecutor(
     agent=agent, tools=tools, verbose=True, return_intermediate_steps=True
 )
 
-st.write(agent_executor.invoke({"input": user_input}))
+dic = agent_executor.invoke({"input": user_input})
+
+st.write(dic.get('output'))
 
 
