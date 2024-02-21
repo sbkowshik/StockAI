@@ -7,7 +7,7 @@ from langchain.agents import initialize_agent
 from langchain.agents import AgentType
 from langchain.agents import AgentExecutor, create_openai_functions_agent
 from dotenv import load_dotenv
-
+import os
 load_dotenv()
 st.title('Stock Analysis Agent')
 
@@ -16,9 +16,8 @@ st.write("""Talk with our agent """)
 user_input = st.text_input("Enter question or name of company","")
 
 tools = [CompanyStockPriceRSITrendAnalysisTool(),PercentageChangeTool(),YahooFinanceNewsTool()]
-
+os.environ["OPENAI_API_KEY"]
 llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
-
 open_ai_agent = initialize_agent(tools,
                         llm,
                         agent=AgentType.OPENAI_FUNCTIONS,
