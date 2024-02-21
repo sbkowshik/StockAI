@@ -13,5 +13,6 @@ beautifulsoup4
 requests-html 
 langchainhub
 streamlit
+seaborn
 python-dotenv
 matplotlib
