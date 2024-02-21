@@ -22,7 +22,6 @@ import os
 import yfinance as yf
 import json
 import pandas as pd
-import seaborn as sns
 from langchain.chains.summarize import load_summarize_chain
 from langchain.prompts.chat import (
     ChatPromptTemplate,
