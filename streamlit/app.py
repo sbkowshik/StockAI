@@ -10,9 +10,7 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 st.title('Stock Analysis Agent')
-
-st.write("""Talk with our agent """)
-
+
 user_input = st.text_input("Enter question or name of company","")
 
 tools = [CompanyStockPriceRSITrendAnalysisTool(),PercentageChangeTool(),YahooFinanceNewsTool()]
