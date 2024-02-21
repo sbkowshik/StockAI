@@ -16,7 +16,7 @@ st.write("""Talk with our agent """)
 user_input = st.text_input("Enter question or name of company","")
 
 tools = [CompanyStockPriceRSITrendAnalysisTool(),PercentageChangeTool(),YahooFinanceNewsTool()]
-os.environ["OPENAI_API_KEY"]
+os.environ["OPENAI_API_KEY"]=st.secrets["OPENAI_API_KEY"]
 llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
 open_ai_agent = initialize_agent(tools,
                         llm,
