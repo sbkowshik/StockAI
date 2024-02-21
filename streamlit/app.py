@@ -2,7 +2,7 @@ import streamlit as st
 from myagent import CompanyStockPriceRSITrendAnalysisTool,PercentageChangeTool,YahooFinanceNewsTool
 from myagent import get_stock_price,calculate_trend_analysis,rsi_calculation
 from langchain import hub
-from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
 from langchain.agents import initialize_agent
 from langchain.agents import AgentType
 from langchain.agents import AgentExecutor, create_openai_functions_agent
