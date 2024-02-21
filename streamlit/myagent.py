@@ -254,9 +254,10 @@ def probability(symbol):
   weights = np.array([0.25, 0.25, 0.25, 0.25])  # Adjust weights as needed
   factors = np.array([normalized_rsi, ta_probability, annualized_std_vol, weekly_price_change])
   probability1 = np.dot(weights, factors)
-  print(normalized_rsi, ta_probability, annualized_std_vol, weekly_price_change)
-  prob = f"Probability of future earnings: {probability1}. "
-  return prob
+  #print(normalized_rsi, ta_probability, annualized_std_vol, weekly_price_change)
+  prob = (probability1/1)*100
+  prob1 = f"Probability of future earnings: {prob}. "
+  return prob1
 
 class StockPriceRSITrendAnalysisInput(BaseModel):
     """Input for Stock price check."""
@@ -283,12 +284,13 @@ class CompanyStockPriceRSITrendAnalysisTool(BaseTool):
           return f"{calculate_trend_analysis(stockticker)}."
         def RSICalculation(stockticker):
           return f"{rsi_calculation(stockticker)}."
-
+        def ProbabilityCalculation(stockticker):
+            return f"{probability(stockticker)},"
         pr = PriceResponse(stockticker)
         ta = TACalculation(stockticker)
         rsi = RSICalculation(stockticker)
-
-        prob = probability(stockticker)
+        prob = ProbabilityCalculation(stockticker)
+        
         result = pr + "\n" + ta + "\n" + rsi+"\n" + prob
         return result
 
