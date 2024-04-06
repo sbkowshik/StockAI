@@ -137,7 +137,7 @@ def calculate_trend_analysis(symbol):
   return x
 
 def rsi_calculation(symbol):
-  today = date.today() - timedelta(days=6)
+  today = date.today() - timedelta(days=4)
   now = datetime.now()
   today_date = now.strftime('%Y-%m-%d')
   current_year = datetime.now().year
