@@ -81,7 +81,7 @@ def calculate_trend_analysis(symbol):
   historical_stock_data_df['lastDayVolume'] = historical_stock_data['Volume'].shift(1)
   historical_stock_data_df.reset_index(inplace = True)
   today_date = now.strftime('%Y-%m-%d')
-  yesterday = today - timedelta(days=7)
+  yesterday = today - timedelta(days=4)
   yesterday_date = yesterday.strftime('%Y-%m-%d')
   yesterday_data = historical_stock_data_df[historical_stock_data_df['Date'] == yesterday_date]
 
