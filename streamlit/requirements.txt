@@ -16,3 +16,4 @@ langchainhub
 streamlit
 python-dotenv
 matplotlib
+lxml_html_clean
