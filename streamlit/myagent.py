@@ -61,7 +61,7 @@ def get_stock_price(symbol):
     return round(todays_data['Close'][0], 2)
 
 def calculate_trend_analysis(symbol):
-  today = date.today() - timedelta(days=1)
+  today = date.today() - timedelta(days=6)
   now = datetime.now()
   today_date = now.strftime('%Y-%m-%d')
   current_year = datetime.now().year
