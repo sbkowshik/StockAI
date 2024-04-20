@@ -83,7 +83,7 @@ def chart():
 }
 </script>
 </div>
-<!-- TradingView Widget END -->'''.format(symb=ticker.info['symbol'])
+<!-- TradingView Widget END -->'''.format(symb=ticker)
 
                 components.html(htmlcode,height=550,width=400)
 question=st.chat_input("Ask your stock related Questions")
