@@ -37,9 +37,9 @@ agent.agent.llm_chain.prompt.template = sys_message
 st.title('Stock Analysis Agent')
 question=st.chat_input("Ask your stock related Questions")
 if question:
-    with st.chat_message("user"):
+    with st.chat_message("user",avatar="😺"):
         st.markdown(question)
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant",avatar="🦖"):
         st_callback=StreamlitCallbackHandler(st.container())
         response=agent.invoke({"input": question}, {"callbacks": [st_callback]})
         st.markdown(response)
