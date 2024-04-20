@@ -1,338 +1,283 @@
-from langchain.tools import BaseTool
-from typing import Optional, Type
-from langchain.agents import initialize_agent, Tool
-from langchain.agents import AgentType
-from langchain.agents import load_tools, initialize_agent, AgentExecutor
-from langchain_experimental.agents import create_pandas_dataframe_agent
-from langchain.llms import OpenAI
-from langchain.tools import Tool
-from langchain.prompts import ChatPromptTemplate, PromptTemplate, SystemMessagePromptTemplate, AIMessagePromptTemplate, HumanMessagePromptTemplate
-from langchain.output_parsers import StructuredOutputParser, ResponseSchema
-from langchain.chat_models import ChatOpenAI
-from langchain.memory import ConversationBufferMemory
-from langchain.chains import ConversationChain, LLMChain, create_extraction_chain
-from langchain.agents import load_tools, ZeroShotAgent
-from langchain.utilities import GoogleSearchAPIWrapper
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.docstore.document import Document
-from googleapiclient.discovery import build
-import matplotlib.pyplot as plt
-import requests
-import os
+from langchain.agents import tool, Tool
 import yfinance as yf
-import json
+from datetime import datetime, timedelta
 import pandas as pd
-from langchain.chains.summarize import load_summarize_chain
-from langchain.prompts.chat import (
-    ChatPromptTemplate,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate
-)
-from pydantic import BaseModel, Field
-import re
-from langchain import hub
-from langchain_community.llms import OpenAI
-from langchain.agents import AgentExecutor, create_react_agent
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
-from langchain import hub
-from requests_html import HTMLSession
-from urllib.parse import urlencode
-from datetime import datetime
-from datetime import date
-from datetime import timedelta
+import numpy as np
+import talib
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 
-from langchain_community.tools.yahoo_finance_news import YahooFinanceNewsTool
+@tool
+def get_company_symbol(symbol:str) -> str:
+  """Returns the ticker of the company inputted"""
+  ticker = yf.Ticker(symbol)
+  return ticker
 
-from langchain.agents import AgentExecutor, create_openai_functions_agent
-from langchain import hub
+@tool
+def get_stock_price(symbol:str) -> float:
+  """Returns current price of ticker"""
+  ticker = yf.Ticker(symbol)
+  todays_data = ticker.history(period='1d')
+  return round(todays_data['Close'][0], 2)
 
-from dotenv import load_dotenv
+@tool
+def calculate_rsi(symbol:str) -> float:
+    """Return RSI Calculation of ticker"""
+    end_date = datetime.today().strftime('%Y-%m-%d')
+    start_date = (datetime.today() - timedelta(days=100)).strftime('%Y-%m-%d')
+    data = yf.download(symbol, start=start_date, end=end_date)
+    delta = data['Adj Close'].diff(1)
+    delta = delta[1:]
+    up = delta.copy()
+    down = delta.copy()
+    up[up < 0] = 0
+    down[down > 0] = 0
+    avg_gain = up.rolling(window=14).mean()
+    avg_loss = abs(down.rolling(window=14).mean())
+    rs = avg_gain / avg_loss
+    rsi = 100.0 - (100.0 / (1.0 + rs))
+    data['RSI'] = rsi
+    temp = data['RSI'].iloc[-1]
+    rsi = format(temp,".2f")
+    return rsi
 
-load_dotenv()
+@tool
+def ma(ticker:str) -> str:
+    """Returns Moving Average of ticker"""
+    # Define the function to calculate WMA
+    def calculate_wma(prices):
+        weights = np.arange(1, 15)
+        wma = np.convolve(prices, weights, mode='valid') / weights.sum()
+        return np.concatenate((np.full(13, np.nan), wma), axis=0)
 
-def get_stock_price(symbol):
-    ticker = yf.Ticker(symbol)
-    todays_data = ticker.history(period='1d')
-    return round(todays_data['Close'][0], 2)
+    # Download stock data
+    end_date = datetime.today().strftime('%Y-%m-%d')
+    start_date = (datetime.today() - timedelta(days=100)).strftime('%Y-%m-%d')
+    data = yf.download(ticker, start=start_date, end=end_date)
 
-def calculate_trend_analysis(symbol):
-  today = date.today() - timedelta(days=1)
-  now = datetime.now()
-  today_date = now.strftime('%Y-%m-%d')
-  current_year = datetime.now().year
-  current_year_start_date = str(current_year) + "-01-01"
-  last_year = current_year - 1
-  year_before_last = last_year - 1
-  last_year_start_date = str(last_year) + "-01-01"
-  last_year_end_date = str(last_year) + "-12-31"
-  year_before_last_start_date = str(year_before_last) + "-01-01"
-  year_before_last_ending_date = str(year_before_last) + "-12-31"
-  historical_stock_data = yf.download(symbol, year_before_last_start_date, today_date)
-  historical_stock_data_df = pd.DataFrame(historical_stock_data)
-  historical_stock_data_df['lastDayOpen'] = historical_stock_data['Open'].shift(1)
-  historical_stock_data_df['lastDayHigh'] = historical_stock_data['High'].shift(1)
-  historical_stock_data_df['lastDayLow'] = historical_stock_data['Low'].shift(1)
-  historical_stock_data_df['lastDayClose'] = historical_stock_data['Close'].shift(1)
-  historical_stock_data_df['lastDayVolume'] = historical_stock_data['Volume'].shift(1)
-  historical_stock_data_df.reset_index(inplace = True)
-  today_date = now.strftime('%Y-%m-%d')
-  yesterday = today - timedelta(days=6)
-  yesterday_date = yesterday.strftime('%Y-%m-%d')
-  yesterday_data = historical_stock_data_df[historical_stock_data_df['Date'] == yesterday_date]
+    if data.empty:
+        return None  # Return None if no data is retrieved
 
-  if not yesterday_data.empty:
-    yesterday_lastDayHigh = yesterday_data['lastDayHigh'].values[0]
-    yesterday_lastDayClose = yesterday_data['lastDayClose'].values[0]
-    yesterday_lastDayLow = yesterday_data['lastDayLow'].values[0]
-  df=historical_stock_data_df
-  df['Price Change'] = df['Close'] - df['lastDayClose']
-  df['Gain'] = df['Price Change'].apply(lambda x: x if x > 0 else 0)
-  df['Loss'] = df['Price Change'].apply(lambda x: -x if x < 0 else 0)
-  period = 14
-  df['Avg Gain'] = df['Gain'].rolling(window=period).mean()
-  df['Avg Loss'] = df['Loss'].rolling(window=period).mean()
-  df['RS'] = df['Avg Gain'] / df['Avg Loss']
-  df['RSI'] = 100 - (100 / (1 + df['RS']))
-  df.dropna(inplace=True)
-  df.drop(['Price Change', 'Gain', 'Loss', 'Avg Gain', 'Avg Loss', 'RS'], axis=1, inplace=True)
-  df1 = df[['Date', 'RSI']]
-  yesterday_RSIDF = df1[df1['Date'] == yesterday_date]
-  window_size = 20  # You can adjust the window size as needed
-  df['SMA'] = df['Close'].rolling(window=window_size).mean()
+    # Calculate SMA
+    data['SMA'] = data['Close'].rolling(window=14).mean()
 
-# Calculate Exponential Moving Average (EMA)
-  alpha = 2 / (window_size + 1)  # You can adjust the smoothing factor (alpha) as needed
-  df['EMA'] = df['Close'].ewm(alpha=alpha, adjust=False).mean()
+    # Calculate EMA
+    data['EMA'] = data['Close'].ewm(span=14, adjust=False).mean()
 
-# Calculate Weighted Moving Average (WMA)
-  weights = pd.Series(range(1, window_size + 1))  # You can adjust the weights as needed
-  df['WMA'] = df['Close'].rolling(window=window_size).apply(lambda prices: (prices * weights).sum() / weights.sum(), raw=True)
-  df1=df[['Date','Close','SMA','EMA','WMA']]
-  yesterday_MA = df1[df1['Date'] == yesterday_date]
-# Note: For the first window_size - 1 rows, NaN will be produced as there won't be enough data for the moving averages.
-# You may choose to drop or handle these NaN values as per your requirement.
-  mac = yesterday_MA['Close'].values[0]
-  mas = yesterday_MA['SMA'].values[0]
-  mae = yesterday_MA['EMA'].values[0]
-  maw = yesterday_MA['WMA'].values[0]
-  if (mac < mas):
-    ta1 = f"Closing Value is less than SMA, It may indicate a downtrend. Closing Value : {mac} , SMA : {mas}. "
-  else:
-    ta1 = f"Closing Value is greater than SMA, It may indicate a uptrend. Closing Value : {mac} , SMA : {mas}. "
-  if (mac < mas):
-    ta2 = f"Closing Value is less than EMA, It may indicate a downtrend. Closing Value : {mac} , EMA : {mae}. "
-  else:
-    ta2 = f"Closing Value is greater than EMA, It may indicate a uptrend. Closing Value : {mac} , EMA : {mae}. "
-  if (mac < mas):
-    ta3 = f"Closing Value is less than WMA, It may indicate a downtrend. Closing Value : {mac} , WMA : {maw}. "
-  else:
-    ta3 = f"Closing Value is greater than WMA, It may indicate a uptrend. Closing Value : {mac} , WMA : {maw}. "
+    # Calculate WMA
+    data['WMA'] = calculate_wma(data['Close'].values)
+    mac = format(data['Close'].iloc[-1],".2f")
+    mas = format(data['SMA'].iloc[-1],".2f")
+    mae = format(data['EMA'].iloc[-1],".2f")
+    maw = format(data['WMA'].iloc[-1],".2f")
+    if (mac < mas):
+      ta1 = f"Closing Value is less than SMA, It may indicate a downtrend. Closing Value : {mac} , SMA : {mas}. "
+    else:
+      ta1 = f"Closing Value is greater than SMA, It may indicate a uptrend. Closing Value : {mac} , SMA : {mas}. "
+    if (mac < mas):
+      ta2 = f"Closing Value is less than EMA, It may indicate a downtrend. Closing Value : {mac} , EMA : {mae}. "
+    else:
+      ta2 = f"Closing Value is greater than EMA, It may indicate a uptrend. Closing Value : {mac} , EMA : {mae}. "
+    if (mac < mas):
+      ta3 = f"Closing Value is less than WMA, It may indicate a downtrend. Closing Value : {mac} , WMA : {maw}. "
+    else:
+      ta3 = f"Closing Value is greater than WMA, It may indicate a uptrend. Closing Value : {mac} , WMA : {maw}. "
 
-  x = ta1 + "\n" + ta2 + "\n" + ta3 + "\n"
+    x = ta1 + "\n" + ta2 + "\n" + ta3 + "\n"
+    return x
+
+@tool
+def predict_stock(ticker:str) -> float:
+  """Predicts the next day's closing value using ticker"""
+
+  # Fetch historical stock data from Yahoo Finance
+  stock_data = yf.download(ticker,period='max')
+
+  # Calculate additional features
+  stock_data['SMA_50'] = stock_data['Close'].rolling(window=50).mean()  # 50-day Simple Moving Average
+  stock_data['SMA_200'] = stock_data['Close'].rolling(window=200).mean()  # 200-day Simple Moving Average
+  stock_data['Daily_Return'] = stock_data['Close'].pct_change()  # Daily Return
+  stock_data['Volatility'] = stock_data['Daily_Return'].rolling(window=20).std()  # 20-day Volatility
+
+  # Drop rows with NaN values
+  stock_data.dropna(inplace=True)
+
+  # Define features and target variable
+  X=stock_data.drop(['Adj Close'] ,axis=1)# Features
+  y = stock_data['Adj Close']
+  regressor = RandomForestRegressor(n_estimators=100, max_depth=None)
+  regressor.fit(X,y)
+  X_latest = X.tail(1)
+  # Make predictions using the latest feature set
+  predictions = regressor.predict(X_latest)
+  # Calculate MSE for each prediction
+  mse_values = mean_squared_error(y.tail(1), predictions)
+
+  # Get the best prediction
+  best_prediction = predictions[0]
+  predicted_price = format(best_prediction,".2f")
+  # Print the best prediction
+  return best_prediction
+
+@tool
+def candlestick(ticker:str) -> str:
+  """ReturnReturns the candlestick pattern as well as its learning by ticker"""
+  candlestick_patterns = {
+    'CDL2CROWS':'Two Crows',
+    'CDL3BLACKCROWS':'Three Black Crows',
+    'CDL3INSIDE':'Three Inside Up/Down',
+    'CDL3LINESTRIKE':'Three-Line Strike',
+    'CDL3OUTSIDE':'Three Outside Up/Down',
+    'CDL3STARSINSOUTH':'Three Stars In The South',
+    'CDL3WHITESOLDIERS':'Three Advancing White Soldiers',
+    'CDLABANDONEDBABY':'Abandoned Baby',
+    'CDLADVANCEBLOCK':'Advance Block',
+    'CDLBELTHOLD':'Belt-hold',
+    'CDLBREAKAWAY':'Breakaway',
+    'CDLCLOSINGMARUBOZU':'Closing Marubozu',
+    'CDLCONCEALBABYSWALL':'Concealing Baby Swallow',
+    'CDLCOUNTERATTACK':'Counterattack',
+    'CDLDARKCLOUDCOVER':'Dark Cloud Cover',
+    'CDLDOJI':'Doji',
+    'CDLDOJISTAR':'Doji Star',
+    'CDLDRAGONFLYDOJI':'Dragonfly Doji',
+    'CDLENGULFING':'Engulfing Pattern',
+    'CDLEVENINGDOJISTAR':'Evening Doji Star',
+    'CDLEVENINGSTAR':'Evening Star',
+    'CDLGAPSIDESIDEWHITE':'Up/Down-gap side-by-side white lines',
+    'CDLGRAVESTONEDOJI':'Gravestone Doji',
+    'CDLHAMMER':'Hammer',
+    'CDLHANGINGMAN':'Hanging Man',
+    'CDLHARAMI':'Harami Pattern',
+    'CDLHARAMICROSS':'Harami Cross Pattern',
+    'CDLHIGHWAVE':'High-Wave Candle',
+    'CDLHIKKAKE':'Hikkake Pattern',
+    'CDLHIKKAKEMOD':'Modified Hikkake Pattern',
+    'CDLHOMINGPIGEON':'Homing Pigeon',
+    'CDLIDENTICAL3CROWS':'Identical Three Crows',
+    'CDLINNECK':'In-Neck Pattern',
+    'CDLINVERTEDHAMMER':'Inverted Hammer',
+    'CDLKICKING':'Kicking',
+    'CDLKICKINGBYLENGTH':'Kicking - bull/bear determined by the longer marubozu',
+    'CDLLADDERBOTTOM':'Ladder Bottom',
+    'CDLLONGLEGGEDDOJI':'Long Legged Doji',
+    'CDLLONGLINE':'Long Line Candle',
+    'CDLMARUBOZU':'Marubozu',
+    'CDLMATCHINGLOW':'Matching Low',
+    'CDLMATHOLD':'Mat Hold',
+    'CDLMORNINGDOJISTAR':'Morning Doji Star',
+    'CDLMORNINGSTAR':'Morning Star',
+    'CDLONNECK':'On-Neck Pattern',
+    'CDLPIERCING':'Piercing Pattern',
+    'CDLRICKSHAWMAN':'Rickshaw Man',
+    'CDLRISEFALL3METHODS':'Rising/Falling Three Methods',
+    'CDLSEPARATINGLINES':'Separating Lines',
+    'CDLSHOOTINGSTAR':'Shooting Star',
+    'CDLSHORTLINE':'Short Line Candle',
+    'CDLSPINNINGTOP':'Spinning Top',
+    'CDLSTALLEDPATTERN':'Stalled Pattern',
+    'CDLSTICKSANDWICH':'Stick Sandwich',
+    'CDLTAKURI':'Takuri (Dragonfly Doji with very long lower shadow)',
+    'CDLTASUKIGAP':'Tasuki Gap',
+    'CDLTHRUSTING':'Thrusting Pattern',
+    'CDLTRISTAR':'Tristar Pattern',
+    'CDLUNIQUE3RIVER':'Unique 3 River',
+    'CDLUPSIDEGAP2CROWS':'Upside Gap Two Crows',
+    'CDLXSIDEGAP3METHODS':'Upside/Downside Gap Three Methods'
+  }
+  start_date = datetime.today() - timedelta(days=100)
+  df = yf.download(ticker, start=start_date, end=datetime.today())
+  df = df.reset_index()
+  df=df.drop(columns=['Adj Close','Volume'])
+  for pattern, pattern_name in candlestick_patterns.items():
+      pattern_result = getattr(talib, pattern)(df['Open'], df['High'], df['Low'], df['Close'])
+      df[pattern_name] = pattern_result.astype(bool)
+  data=df
+  data['PositiveEngulfing'] = data['Engulfing Pattern'] > 0
+  data['NegativeEngulfing'] = data['Engulfing Pattern'] < 0
+  data.drop(columns=['Engulfing Pattern'])
+  pattern_trend = {
+    'Two Crows': 'bearish',
+    'Three Black Crows': 'bearish',
+    'Three Inside Up/Down': 'bullish/bearish',
+    'Three-Line Strike': 'bullish/bearish',
+    'Three Outside Up/Down': 'bullish/bearish',
+    'Three Stars In The South': 'bullish',
+    'Three Advancing White Soldiers': 'bullish',
+    'Abandoned Baby': 'bullish',
+    'Advance Block': 'bearish',
+    'Belt-hold': 'bullish',
+    'Breakaway': 'bullish',
+    'Closing Marubozu': 'bullish',
+    'Concealing Baby Swallow': 'bullish',
+    'Counterattack': 'bullish',
+    'Dark Cloud Cover': 'bearish',
+    'Doji': 'neutral',
+    'Doji Star': 'neutral',
+    'Dragonfly Doji': 'bullish',
+    'Engulfing Pattern': 'bullish',
+    'Evening Doji Star': 'bearish',
+    'Evening Star': 'bearish',
+    'Up/Down-gap side-by-side white lines': 'bullish',
+    'Gravestone Doji': 'bearish',
+    'Hammer': 'bullish',
+    'Hanging Man': 'bearish',
+    'Harami Pattern': 'bullish',
+    'Harami Cross Pattern': 'bullish',
+    'High-Wave Candle': 'neutral',
+    'Hikkake Pattern': 'neutral',
+    'Modified Hikkake Pattern': 'neutral',
+    'Homing Pigeon': 'bullish',
+    'Identical Three Crows': 'bearish',
+    'In-Neck Pattern': 'bearish',
+    'Inverted Hammer': 'bullish',
+    'Kicking': 'bullish',
+    'Kicking - bull/bear determined by the longer marubozu': 'bullish',
+    'Ladder Bottom': 'bullish',
+    'Long Legged Doji': 'neutral',
+    'Long Line Candle': 'neutral',
+    'Marubozu': 'bullish',
+    'Matching Low': 'bullish',
+    'Mat Hold': 'bullish',
+    'Morning Doji Star': 'bullish',
+    'Morning Star': 'bullish',
+    'On-Neck Pattern': 'bearish',
+    'Piercing Pattern': 'bullish',
+    'Rickshaw Man': 'neutral',
+    'Rising/Falling Three Methods': 'bullish',
+    'Separating Lines': 'bullish',
+    'Shooting Star': 'bearish',
+    'Short Line Candle': 'neutral',
+    'Spinning Top': 'neutral',
+    'Stalled Pattern': 'neutral',
+    'Stick Sandwich': 'neutral',
+    'Takuri (Dragonfly Doji with very long lower shadow)': 'bullish',
+    'Tasuki Gap': 'neutral',
+    'Thrusting Pattern': 'bullish',
+    'Tristar Pattern': 'neutral',
+    'Unique 3 River': 'bullish',
+    'Upside Gap Two Crows': 'bearish',
+    'Upside/Downside Gap Three Methods': 'bullish',
+    'PositiveEngulfing': 'bullish',
+    'NegativeEngulfing': 'bearish'
+  }
+  pattern_columns = data.columns[5:]
+
+  latest_dates = {}
+
+  for column in pattern_columns:
+      pattern_data = data[data[column]]
+      if not pattern_data.empty:
+          latest_date = pattern_data['Date'].iloc[-1]
+          latest_dates[column] = latest_date
+
+  Candle_DF = pd.DataFrame(list(latest_dates.items()), columns=['Date','Pattern'])
+  Candle_DF_sorted = Candle_DF.sort_values(by='Date', ascending=True)
+  latest_row = Candle_DF_sorted.loc[2]
+  latest_date = latest_row['Date']
+  latest_pattern = latest_row['Pattern']
+  x=f'Latest Date: {latest_pattern} \nPattern: {latest_date} \nTrend: {pattern_trend[latest_date]}'
   return x
 
-def rsi_calculation(symbol):
-  today = date.today() - timedelta(days=4)
-  now = datetime.now()
-  today_date = now.strftime('%Y-%m-%d')
-  current_year = datetime.now().year
-  current_year_start_date = str(current_year) + "-01-01"
-  last_year = current_year - 1
-  year_before_last = last_year - 1
-  last_year_start_date = str(last_year) + "-01-01"
-  last_year_end_date = str(last_year) + "-12-31"
-  year_before_last_start_date = str(year_before_last) + "-01-01"
-  year_before_last_ending_date = str(year_before_last) + "-12-31"
-  historical_stock_data = yf.download(symbol, year_before_last_start_date, today_date)
-  historical_stock_data_df = pd.DataFrame(historical_stock_data)
-  historical_stock_data_df['lastDayOpen'] = historical_stock_data['Open'].shift(1)
-  historical_stock_data_df['lastDayHigh'] = historical_stock_data['High'].shift(1)
-  historical_stock_data_df['lastDayLow'] = historical_stock_data['Low'].shift(1)
-  historical_stock_data_df['lastDayClose'] = historical_stock_data['Close'].shift(1)
-  historical_stock_data_df['lastDayVolume'] = historical_stock_data['Volume'].shift(1)
-  historical_stock_data_df.reset_index(inplace = True)
-  today_date = now.strftime('%Y-%m-%d')
-  yesterday = today - timedelta(days=7)
-  yesterday_date = yesterday.strftime('%Y-%m-%d')
-  yesterday_data = historical_stock_data_df[historical_stock_data_df['Date'] == yesterday_date]
-
-# Check if there are any rows for yesterday's date
-  if not yesterday_data.empty:
-    yesterday_lastDayHigh = yesterday_data['lastDayHigh'].values[0]
-    yesterday_lastDayClose = yesterday_data['lastDayClose'].values[0]
-    yesterday_lastDayLow = yesterday_data['lastDayLow'].values[0]
-  df=historical_stock_data_df
-  df['Price Change'] = df['Close'] - df['lastDayClose']
-  df['Gain'] = df['Price Change'].apply(lambda x: x if x > 0 else 0)
-  df['Loss'] = df['Price Change'].apply(lambda x: -x if x < 0 else 0)
-  period = 14
-  df['Avg Gain'] = df['Gain'].rolling(window=period).mean()
-  df['Avg Loss'] = df['Loss'].rolling(window=period).mean()
-  df['RS'] = df['Avg Gain'] / df['Avg Loss']
-  df['RSI'] = 100 - (100 / (1 + df['RS']))
-  df.dropna(inplace=True)
-  df.drop(['Price Change', 'Gain', 'Loss', 'Avg Gain', 'Avg Loss', 'RS'], axis=1, inplace=True)
-  df1 = df[['Date', 'RSI']]
-  yesterday_RSIDF = df1[df1['Date'] == yesterday_date]
-  yRSI = yesterday_RSIDF['RSI'].values[0]
-  if (yRSI>70):
-    rsi = f"Security may be overbought and could potentially drop RSI : {yRSI}. "
-  elif (yRSI>30 and yRSI<70):
-    rsi = f"It falls in between the range security is neither significantly overbought nor oversold RSI : {yRSI}. "
-  elif (yRSI <30):
-    rsi = f"Security may be oversold and could potentially rise RSI : {yRSI}. "
-  return rsi
-
-import numpy as np
-
-def probability(symbol):
-  def rsi_value(sentence):
-    pattern = r"RSI\s*:\s*(\d+\.?\d*)"
-
-    match = re.search(pattern, sentence)
-    if match:
-        try:
-            # Convert matched string to float, handling potential decimal separator variations
-            yRSI = float(match.group(1).replace(",", ""))
-            return yRSI
-        except ValueError:
-            raise ValueError("Extracted yRSI value is not numeric")
-    else:
-        return None
-  
-  def ta_value(sentence):
-  # Regular expression pattern to match "uptrend" or "downtrend"
-    pattern = r"(uptrend|downtrend)"
-
-    # Extract sentiment
-    match = re.search(pattern, sentence, flags=re.IGNORECASE)
-    if match:
-        sentiment = match.group(1).lower()  # Convert to lowercase
-    else:
-        raise ValueError("Sentence must contain 'uptrend' or 'downtrend'")
-    if sentiment == "uptrend":
-      ta_probability = 1.0
-    elif sentiment == "downtrend":
-      ta_probability = 0.0
-    else:
-      raise ValueError("Invalid TA value: {}".format(sentence))
-    return ta_probability
-
-  def volatility_calc(symbol):
-    historical_data = yf.download(symbol, period="10d")
-    if len(historical_data) < 2:
-        raise ValueError("Need at least 2 closing prices to calculate volatility.")
-
-    # Calculate daily percentage change
-    daily_pct_change = historical_data['Close'].pct_change().dropna()
-
-    # Calculate daily standard deviation
-    daily_std = np.std(daily_pct_change)
-
-    # Calculate annualized standard deviation
-    annualized_std = daily_std * np.sqrt(252)
-
-    # Calculate weekly percentage change
-    weekly_price_change = ((historical_data["Close"].iloc[-1] - historical_data["Close"].iloc[0]) / historical_data["Close"].iloc[0]) * 100
-
-    return annualized_std, weekly_price_change
-
-  normalized_rsi = rsi_value(rsi_calculation(symbol)) / 100
-
-  # Determine prob based on trend analysis
-  ta_probability = ta_value(calculate_trend_analysis(symbol))
-
-  # Determine prob based on  volitility & price change
-  annualized_std_vol, weekly_price_change = volatility_calc(symbol)
-
-  # Combine factors using a weighted average
-  weights = np.array([0.25, 0.25, 0.25, 0.25])  # Adjust weights as needed
-  factors = np.array([normalized_rsi, ta_probability, annualized_std_vol, weekly_price_change])
-  probability1 = np.dot(weights, factors)
-  #print(normalized_rsi, ta_probability, annualized_std_vol, weekly_price_change)
-  prob = (probability1/1)*100
-  prob1 = f"Probability of future earnings: {prob}. "
-  return prob1
-
-class StockPriceRSITrendAnalysisInput(BaseModel):
-    """Input for Stock price check."""
-
-    stockticker: str = Field(..., description="Ticker symbol for stock or index")
-
-class StockChangePercentageCheckInput(BaseModel):
-    """Input for Stock ticker check. for percentage check"""
-
-    stockticker: str = Field(..., description="Ticker symbol for stock or index")
-    days_ago: int = Field(..., description="Int number of days to look back")
-
-class CompanyStockPriceRSITrendAnalysisTool(BaseTool):
-    name = "get_stock_ticker_price"
-    description = "Useful for when you need to find out the price of stock. You should input the stock ticker used on the yfinance API"
-
-    def _run(self, stockticker: str):
-
-        def PriceResponse(stockticker):
-          #getting current price
-          return f"Price is {get_stock_price(stockticker)}. "
-          #getting past data
-        def TACalculation(stockticker):
-          return f"{calculate_trend_analysis(stockticker)}."
-        def RSICalculation(stockticker):
-          return f"{rsi_calculation(stockticker)}."
-        def ProbabilityCalculation(stockticker):
-            return f"{probability(stockticker)},"
-        pr = PriceResponse(stockticker)
-        ta = TACalculation(stockticker)
-        rsi = RSICalculation(stockticker)
-        prob = ProbabilityCalculation(stockticker)
-        
-        result = pr + "\n" + ta + "\n" + rsi+"\n" + prob
-        return result
-
-    def _arun(self, stockticker: str):
-        raise NotImplementedError("This tool does not support async")
-
-    args_schema: Optional[Type[BaseModel]] = StockPriceRSITrendAnalysisInput
-class PercentageChangeTool(BaseTool):
-    name = "get_price_change_percent"
-    description = "Useful for when you need to find out the percentage change in a stock's value. You should input the stock ticker used on the yfinance API and also input the number of days to check the change over"
-
-    def _run(self, stockticker: str, days_ago: int):
-        def get_price_change_percent(symbol, days_ago):
-          ticker = yf.Ticker(symbol)
-
-    # Get today's date
-          end_date = datetime.now()
-
-    # Get the date N days ago
-          start_date = end_date - timedelta(days=days_ago)
-
-    # Convert dates to string format that yfinance can accept
-          start_date = start_date.strftime('%Y-%m-%d')
-          end_date = end_date.strftime('%Y-%m-%d')
-
-    # Get the historical data
-          historical_data = ticker.history(start=start_date, end=end_date)
-
-    # Get the closing price N days ago and today's closing price
-          old_price = historical_data['Close'].iloc[0]
-          new_price = historical_data['Close'].iloc[-1]
-
-    # Calculate the percentage change
-          percent_change = ((new_price - old_price) / old_price) * 100
-
-          return round(percent_change, 2)
-        price_change_response = get_price_change_percent(stockticker, days_ago)
-
-        return price_change_response
-
-    def _arun(self, stockticker: str, days_ago: int):
-        raise NotImplementedError("This tool does not support async")
-
-    args_schema: Optional[Type[BaseModel]] = StockChangePercentageCheckInput
 
