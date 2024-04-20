@@ -11,7 +11,7 @@ import streamlit as st
 from dotenv import load_dotenv
 load_dotenv()
 
-os.environ["HUGGINGFACEHUB_API_KEY"]
+os.environ["HUGGINGFACEHUB_API_KEY"]=st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 
 st.title("StockAI")
 
