@@ -9,7 +9,7 @@ from myagent import get_company_symbol,get_stock_price, calculate_rsi, ma, predi
 import os
 import yfinance as yf
 import streamlit as st
-
+import streamlit.components.v1 as components
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -83,7 +83,7 @@ def chart():
             </script>
             </div>
             <!-- TradingView Widget END -->'''.format(symb=ticker)
-                st.markdown(htmlcode)
+                components.html(htmlcode,height=550,width=400)
 question=st.chat_input("Ask your stock related Questions")
 if question:
     with st.chat_message("user",avatar="😺"):
