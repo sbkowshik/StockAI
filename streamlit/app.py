@@ -34,7 +34,7 @@ sys_message = "You are StockAI, a stock market assistant. Answer the following q
 
 agent.agent.llm_chain.prompt.template = sys_message
 
-question=st.chat_input("Ask your stock related Questions")
+question=st.chat_input("Ask your stock related questions")
 if question:
     with st.chat_message("user",avatar="😺"):
         st.markdown(question)
