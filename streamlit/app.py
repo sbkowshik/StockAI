@@ -40,7 +40,7 @@ if question:
     with st.chat_message("user"):
         st.markdown(question)
     with st.chat_message("assistant"):
-        st_callback=StreamlitCallbackHandler(st.containter())
+        st_callback=StreamlitCallbackHandler(st.container())
         response=agent.invoke({"input": question}, {"callbacks": [st_callback]})
         st.markdown(response)
 
