@@ -43,7 +43,8 @@ def chart():
 {
 "symbols": [
     [
-    "{symb}"  // Insert the ticker symbol here
+    "{symb}"
+    "{symb} | 1D"
     ]
 ],
 "chartOnly": false,
