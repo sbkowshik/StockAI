@@ -35,13 +35,13 @@ sys_message = "You are StockAI, a stock market assistant. Answer the following q
 agent.agent.llm_chain.prompt.template = sys_message
 
 st.title('Stock Analysis Agent')
-if prompt := st.chat_input():
-    st.chat_message("user").write(prompt)
+question=st.chat_input("Ask your stock related Questions")
+if question:
+    with st.chat_message("user"):
+        st.markdown(question)
     with st.chat_message("assistant"):
-        st_callback = StreamlitCallbackHandler(st.container())
-        response = agent.invoke(
-            {"input": prompt}, {"callbacks": [st_callback]}
-        )
-        st.write(response["output"])
+        st_callback=StreamlitCallbackHandler(st.containter())
+        response=agent.invoke({"input": question}, {"callbacks": [st_callback]})
+        st.markdown(response)
 
-st.write(response['output'])
+
