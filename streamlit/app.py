@@ -1,7 +1,9 @@
 from langchain_community.llms import HuggingFaceEndpoint
 from langchain_community.chat_models.huggingface import ChatHuggingFace
 from langchain.agents import initialize_agent
-
+from langchain_community.callbacks.streamlit import (
+    StreamlitCallbackHandler,
+)
 from myagent import get_company_symbol,get_stock_price, calculate_rsi, ma, predict_stock,candlestick
 
 import os
@@ -33,8 +35,13 @@ sys_message = "You are StockAI, a stock market assistant. Answer the following q
 agent.agent.llm_chain.prompt.template = sys_message
 
 st.title('Stock Analysis Agent')
+if prompt := st.chat_input():
+    st.chat_message("user").write(prompt)
+    with st.chat_message("assistant"):
+        st_callback = StreamlitCallbackHandler(st.container())
+        response = agent.invoke(
+            {"input": prompt}, {"callbacks": [st_callback]}
+        )
+        st.write(response["output"])
 
-user_input = st.text_input("Enter question or name of company","")
-
-response = agent.invoke(user_input)
 st.write(response['output'])
