@@ -41,5 +41,5 @@ if question:
     with st.chat_message("assistant",avatar="🦖"):
         st_callback=StreamlitCallbackHandler(st.container())
         response=agent.invoke({"input": question}, {"callbacks": [st_callback]})
-        st.markdown(response['output'])
+        st.markdown('<p class="font"> response['output'] </p>', unsafe_allow_html=True)
 
