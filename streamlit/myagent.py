@@ -43,7 +43,7 @@ def calculate_rsi(symbol:str) -> float:
     return rsi
 
 @tool
-def ma(ticker:str) -> str:
+def moving_average(ticker:str) -> str:
     """Returns Moving Average of ticker"""
     # Define the function to calculate WMA
     def calculate_wma(prices):
