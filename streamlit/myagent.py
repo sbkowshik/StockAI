@@ -118,7 +118,7 @@ def predict_stock(ticker:str) -> float:
   best_prediction = predictions[0]
   predicted_price = format(best_prediction,".2f")
   # Print the best prediction
-  return best_prediction
+  return predicted_price
 
 @tool
 def candlestick(ticker:str) -> str:
