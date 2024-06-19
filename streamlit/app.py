@@ -37,12 +37,21 @@ def create_chat_bubble(text):
     return chat_bubble_html
     
 load_dotenv()
-
+if 'exchange1' not in st.session_state:
+        st.session_state['exchange1'] = []
+if 'exchange2' not in st.session_state:
+        st.session_state['exchange2'] = []
+st.session_state['exchange1'] = st.toggle('NSE')
+st.session_state['exchange2'] = st.toggle('BSE')
+if (st.session_state['exchange1']):
+     ex='NS'
+elif (st.session_state['exchange2']):
+     ex='BS'
 os.environ["HUGGINGFACEHUB_API_KEY"]=st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 
 st.title("StockAI")
 
-tools = [get_company_symbol,get_stock_price,calculate_rsi,moving_average,predict_stock,candlestick]
+tools = [get_company_symbol(exchange=ex),get_stock_price,calculate_rsi,moving_average,predict_stock,candlestick]
 
 llm = HuggingFaceEndpoint(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1")
 
