@@ -51,7 +51,7 @@ os.environ["HUGGINGFACEHUB_API_KEY"]=st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 
 st.title("StockAI")
 
-tools = [get_company_symbol(exchange=ex),get_stock_price,calculate_rsi,moving_average,predict_stock,candlestick]
+tools = [get_company_symbol,get_stock_price,calculate_rsi,moving_average,predict_stock,candlestick]
 
 llm = HuggingFaceEndpoint(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1")
 
