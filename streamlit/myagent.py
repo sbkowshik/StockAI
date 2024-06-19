@@ -9,13 +9,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 
 @tool
-def get_company_symbol(symbol:str,exchange: str) -> str:
+def get_company_symbol(symbol:str) -> str:
   """Returns the ticker of the company inputted"""
   ticker = yf.Ticker(symbol)
-  if exchange:
-    return f'{ticker}.{exchange}'
-  else:
-     return ticker
+  return ticker
 
 @tool
 def get_stock_price(symbol:str) -> float:
