@@ -29,9 +29,7 @@ def create_chat_bubble(text):
     }}
     </style>
     <div class="chat-container">
-        <div class="chat-bubble">
             {text}
-        </div>
     </div>
     """
     return chat_bubble_html
