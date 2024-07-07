@@ -42,4 +42,4 @@ if question:
         st_callback=StreamlitCallbackHandler(st.container())
         response=agent.invoke({"input": question}, {"callbacks": [st_callback]})
         res=response.replace("$", "\$")
-        st.write(response)
+        st.write(res)
