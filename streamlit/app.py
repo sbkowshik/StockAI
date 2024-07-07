@@ -13,14 +13,6 @@ from dotenv import load_dotenv
 def create_chat_bubble(text):
     chat_bubble_html = f"""
     <style>
-    .chat-bubble {{
-        max-width: 100%;
-        margin: 10px;
-        padding: 10px;
-        background-color: #262730;
-        border-radius: 16px;
-        border: 1px solid #36454F;
-    }}
     .chat-container {{
         display: flex;
         flex-direction: column;
