@@ -39,5 +39,5 @@ os.environ["GOOGLE_API_KEY"]=st.secrets["GOOGLE_API_KEY"]
 
 sth=st.Page("stockhelp.py",title="StockHelp",icon=":material/search:")
 sta=st.Page("stockai.py",title="StockAI",icon=":material/dashboard:")
-pg=st.navigation([sth,sta])
+pg=st.navigation([sta,sth])
 pg.run()
