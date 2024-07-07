@@ -39,7 +39,7 @@ os.environ["GOOGLE_API_KEY"]=st.secrets["GOOGLE_API_KEY"]
 
 st.title("StockHelp")
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
-prompt = PromptTemplate.from_template("You are a helpful stock market assistant that serves to help users understand stock market terms and concepts as well as questions on how to trade. Check if {topic} is about stocks or stock market trading. If it is, explain the answer like they are a high-schooler unless asked differently, else say the following: 'I am are unable to answer non-stockrelated questions, but if you have any questions about stock or the stock market, feel free to ask!'. Don't declare that the question is about stocks and do not use emojis.")
+prompt = PromptTemplate.from_template("You are a helpful stock market assistant that serves to help users understand stock market terms and concepts as well as questions on how to trade and invest in companies/stock market. Check if {topic} is about stocks or stock market trading. If it is, explain the answer like they are a high-schooler unless asked differently, else say the following: 'I am are unable to answer non-stockrelated questions, but if you have any questions about stock or the stock market, feel free to ask!'. Don't declare that the question is about stocks and do not use emojis.")
 chain = prompt | llm | StrOutputParser()
 
 if question:= st.chat_input("Ask your stock related questions"):
