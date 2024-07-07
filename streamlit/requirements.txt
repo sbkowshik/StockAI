@@ -15,4 +15,4 @@ transformers
 google.generativeai
 langchain_google_genai
 google-generativeai
-angchain_google_genai
+langchain_google_genai
