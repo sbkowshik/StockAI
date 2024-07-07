@@ -14,5 +14,5 @@ huggingface_hub
 transformers
 google.generativeai
 langchain_google_genai
-google-generativeai l
+google-generativeai
 angchain_google_genai
