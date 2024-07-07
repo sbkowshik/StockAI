@@ -48,4 +48,4 @@ if question:= st.chat_input("Ask your stock related questions"):
     with st.chat_message("assistant",avatar="🦖"):
         st_callback=StreamlitCallbackHandler(st.container())
         response=chain.invoke({"topic": question}, {"callbacks": [st_callback]})
-        st.markdown(create_chat_bubble(response), unsafe_allow_html=False)
+        st.markdown(create_chat_bubble(response), unsafe_allow_html=True)
