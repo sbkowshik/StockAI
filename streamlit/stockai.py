@@ -41,5 +41,5 @@ if question:
     with st.chat_message("assistant",avatar="🦖"):
         st_callback=StreamlitCallbackHandler(st.container())
         response=agent.invoke({"input": question}, {"callbacks": [st_callback]})
-        res=response.replace("$", "\$")
+        res=response['output'].replace("$", "\$")
         st.write(res)
