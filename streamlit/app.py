@@ -5,7 +5,7 @@ from langchain_community.callbacks.streamlit import (
     StreamlitCallbackHandler,
 )
 from myagent import get_company_symbol,get_stock_price, calculate_rsi, moving_average, predict_stock,candlestick
-
+from st_pages import Page, Section, add_page_title, show_pages
 import os
 import yfinance as yf
 import streamlit as st
@@ -36,7 +36,7 @@ def create_chat_bubble(text):
     
 load_dotenv()
 os.environ["HUGGINGFACEHUB_API_KEY"]=st.secrets["HUGGINGFACEHUB_API_TOKEN"]
-
+os.environ["GOOGLE_API_KEY"]=st.secrets["GOOGLE_API_KEY"]
 st.title("StockAI")
 
 tools = [get_company_symbol,get_stock_price,calculate_rsi,moving_average,predict_stock,candlestick]
@@ -55,7 +55,9 @@ agent = initialize_agent(tools,
 sys_message = "You are StockAI, a stock market assistant. Answer the following questions as best you can. You have access to the following tools:\n\nget_company_symbol: get_company_symbol(symbol: str) -> str - Returns the ticker of the company inputted - Use this before all other tools get_stock_price: get_stock_price(symbol: str) -> float - Returns current price of ticker calculate_rsi: calculate_rsi(symbol: str) -> float - Return RSI Calculation of ticker moving_average: moving_average(ticker: str) -> str - Returns Moving Average of ticker predict_stock: predict_stock(ticker: str) -> float - Predicts the next day's closing value using ticker candlestick: candlestick(ticker: str) -> str - Returns the candlestick pattern as well as its learning by ticker\n\nUse the following format:\n\nQuestion: the input question you must answer\nThought: you should always think about what to do\nAction: the action to take, should be one of [get_company_symbol, get_stock_price, calculate_rsi, moving_average, predict_stock, candlestick]  Choose the most suitable tool as per the query from the user and for the queries that are similar to 'Should I invest in' make sure you use each and every one of the following tools: [get_company_symbol, get_stock_price, calculate_rsi, moving_average, predict_stock, candlestick] in the same order.  \n Action Input: the input to the action\nObservation: the result of the action... (this Thought/Action/Action Input/Observation can repeat N times)\nThought: I now know the final answer\nFinal Answer: show outputs of all observations and answer to the input question\n\nBegin!\n\nQuestion: {input}\nThought:{agent_scratchpad}"
 
 agent.agent.llm_chain.prompt.template = sys_message
-
+with st.echo("below"):
+    from st_pages import Page, Section, add_page_title, show_pages
+    show_pages([Page("streamlit/stockhelp.py","StockHelp","😶‍🌫️")])
 question=st.chat_input("Ask your stock related questions")
 if question:
     with st.chat_message("user",avatar="😺"):
