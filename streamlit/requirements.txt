@@ -12,3 +12,4 @@ langchain_openai
 scikit-learn
 huggingface_hub
 transformers
+google.generativeai
