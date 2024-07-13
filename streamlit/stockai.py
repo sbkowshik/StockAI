@@ -16,7 +16,7 @@ load_dotenv()
 os.environ["HUGGINGFACEHUB_API_KEY"]=st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 os.environ["GOOGLE_API_KEY"]=st.secrets["GOOGLE_API_KEY"]
 st.title("StockAI")
-
+st.caption("Analyzes technical factors of stocks to provide investment recommendations and comparisons.")
 tools = [get_company_symbol,get_stock_price,calculate_rsi,moving_average,predict_stock,candlestick]
 
 llm = HuggingFaceEndpoint(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1")
