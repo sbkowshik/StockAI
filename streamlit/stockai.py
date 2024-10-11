@@ -25,6 +25,7 @@ def get_system_prompt():
    - Output: Stock symbol (e.g., "MSFT")
    - MUST BE USED FIRST for any company analysis
    - Purpose: Ensures accurate symbol identification
+   - Return ONLY THE STOCK SYMBOL NOTHING ELSE.
 2. GetStockPrice
    - Input: Stock symbol
    - Output: Current market price
