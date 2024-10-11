@@ -15,6 +15,7 @@ from langchain_mistralai import ChatMistralAI
     
 load_dotenv()
 os.environ["MISTRAL_API_KEY"]=st.secrets["MISTRAL_API_KEY"]
+os.environ["HUGGINGFACEHUB_API_KEY"]=st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 st.title("StockAI")
 st.caption("Analyzes technical factors of stocks to provide investment recommendations and comparisons.")
 def get_system_prompt():
@@ -151,11 +152,9 @@ tools = [
     )
 ]
 
-llm = ChatMistralAI(
-    model="mistral-large-latest",
-    temperature=0,
-)
+llm = HuggingFaceEndpoint(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1")
 
+chat_model = ChatHuggingFace(llm=llm)
 agent = initialize_agent(tools,
                          llm,
                          agent="zero-shot-react-description",
