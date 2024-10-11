@@ -156,7 +156,7 @@ llm = HuggingFaceEndpoint(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1")
 
 chat_model = ChatHuggingFace(llm=llm)
 agent = initialize_agent(tools,
-                         llm,
+                         chat_model,
                          agent="zero-shot-react-description",
                          verbose = True,
                          handle_parsing_errors=True
