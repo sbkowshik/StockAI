@@ -14,7 +14,6 @@ from langchain_mistralai import ChatMistralAI
     
 load_dotenv()
 os.environ["MISTRAL_API_KEY"]=st.secrets["MISTRAL_API_KEY"]
-os.environ["GOOGLE_API_KEY"]=st.secrets["GOOGLE_API_KEY"]
 st.title("StockAI")
 st.caption("Analyzes technical factors of stocks to provide investment recommendations and comparisons.")
 tools = [get_company_symbol,get_stock_price,calculate_rsi,moving_average,predict_stock,candlestick]

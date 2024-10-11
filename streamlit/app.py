@@ -27,8 +27,7 @@ def create_chat_bubble(text):
     return chat_bubble_html
     
 load_dotenv()
-os.environ["HUGGINGFACEHUB_API_KEY"]=st.secrets["HUGGINGFACEHUB_API_TOKEN"]
-os.environ["GOOGLE_API_KEY"]=st.secrets["GOOGLE_API_KEY"]
+os.environ["MISTRAL_API_KEY"]=st.secrets["MISTRAL_API_KEY"]
 
 sth=st.Page("stockhelp.py",title="StockHelp",icon=":material/search:")
 sta=st.Page("stockai.py",title="StockAI",icon=":material/dashboard:")
