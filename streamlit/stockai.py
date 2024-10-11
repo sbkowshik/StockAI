@@ -4,6 +4,7 @@ from langchain.agents import initialize_agent
 from langchain_community.callbacks.streamlit import (
     StreamlitCallbackHandler,
 )
+from langchain.tools import Tool
 from myagent import get_company_symbol,get_stock_price, calculate_rsi, moving_average, predict_stock,candlestick
 import os
 import yfinance as yf
@@ -16,7 +17,38 @@ load_dotenv()
 os.environ["MISTRAL_API_KEY"]=st.secrets["MISTRAL_API_KEY"]
 st.title("StockAI")
 st.caption("Analyzes technical factors of stocks to provide investment recommendations and comparisons.")
-tools = [get_company_symbol,get_stock_price,calculate_rsi,moving_average,predict_stock,candlestick]
+tools = [
+    Tool(
+        name="GetCompanySymbol",
+        func=get_company_symbol,
+        description="Gets the stock symbol for a company name"
+    ),
+    Tool(
+        name="GetStockPrice",
+        func=get_stock_price,
+        description="Gets the current stock price for a given symbol"
+    ),
+    Tool(
+        name="CalculateRSI",
+        func=calculate_rsi,
+        description="Calculates the Relative Strength Index for a stock"
+    ),
+    Tool(
+        name="MovingAverage",
+        func=moving_average,
+        description="Calculates moving averages for a stock"
+    ),
+    Tool(
+        name="PredictStock",
+        func=predict_stock,
+        description="Predicts future stock price movements"
+    ),
+    Tool(
+        name="Candlestick",
+        func=candlestick,
+        description="Generates candlestick chart analysis"
+    )
+]
 
 llm = ChatMistralAI(
     model="mistral-large-latest",
