@@ -22,6 +22,7 @@ def get_stock_price(symbol: str) -> float:
     Raises ValueError if no data can be retrieved.
     """
     try:
+        symbol=symbol.strip()
         ticker = yf.Ticker(symbol)
         # Fetch data for the past 2 days (in case today's data is missing)
         data = ticker.history(period='5d')
