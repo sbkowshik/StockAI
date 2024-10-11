@@ -14,22 +14,25 @@ def get_company_symbol(symbol:str) -> str:
   ticker = yf.Ticker(symbol)
   return ticker
 
+@tool
 def get_stock_price(symbol: str) -> float:
     """
     Returns the latest stock price for the given ticker symbol.
-    Raises ValueError if the price cannot be retrieved.
+    If today's data is not available, returns the previous day's closing price.
+    Raises ValueError if no data can be retrieved.
     """
     try:
         ticker = yf.Ticker(symbol)
-        todays_data = ticker.history(period='1d')  # Fetch data for the latest available day
-        
-        if todays_data.empty:
+        # Fetch data for the past 2 days (in case today's data is missing)
+        data = ticker.history(period='5d')
+
+        if data.empty:
             raise ValueError(f"No data available for symbol: {symbol}")
-        
-        # Get the latest closing price
-        latest_price = todays_data['Close'].iloc[0]
-        return round(latest_price, 2)
-        
+
+        # Check if we have at least one day of data
+        latest_available_day = data['Close'].iloc[-1] 
+        return round(latest_available_day, 2)
+
     except Exception as e:
         raise ValueError(f"Error getting price for {symbol}: {str(e)}")
 
