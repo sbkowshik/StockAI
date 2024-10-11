@@ -16,3 +16,4 @@ google.generativeai
 langchain_google_genai
 google-generativeai
 langchain_google_genai
+langchain_mistralai

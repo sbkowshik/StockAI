@@ -14,12 +14,25 @@ def get_company_symbol(symbol:str) -> str:
   ticker = yf.Ticker(symbol)
   return ticker
 
-@tool
-def get_stock_price(symbol:str) -> float:
-  """Returns current price of ticker"""
-  ticker = yf.Ticker(symbol)
-  todays_data = ticker.history(period='1d')
-  return round(todays_data['Close'][0], 2)
+def get_stock_price(symbol: str) -> float:
+    """
+    Returns the current stock price for the given ticker symbol.
+    Raises ValueError if the price cannot be retrieved.
+    """
+    try:
+        ticker = yf.Ticker(symbol)
+        # Get data for last 7 days to handle weekends/holidays
+        todays_data = ticker.history(period='7d')
+        
+        if todays_data.empty:
+            raise ValueError(f"No data available for symbol: {symbol}")
+            
+        # Get the most recent closing price
+        latest_price = todays_data['Close'].iloc[-1]
+        return round(latest_price, 2)
+        
+    except Exception as e:
+        raise ValueError(f"Error getting price for {symbol}: {str(e)}")
 
 @tool
 def calculate_rsi(symbol:str) -> float:

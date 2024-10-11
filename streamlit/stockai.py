@@ -10,18 +10,19 @@ import yfinance as yf
 import streamlit as st
 import streamlit.components.v1 as components
 from dotenv import load_dotenv
-
+from langchain_mistralai import ChatMistralAI
     
 load_dotenv()
-os.environ["HUGGINGFACEHUB_API_KEY"]=st.secrets["HUGGINGFACEHUB_API_TOKEN"]
+os.environ["MISTRAL_API_KEY"]=st.secrets["MISTRAL_API_KEY"]
 os.environ["GOOGLE_API_KEY"]=st.secrets["GOOGLE_API_KEY"]
 st.title("StockAI")
 st.caption("Analyzes technical factors of stocks to provide investment recommendations and comparisons.")
 tools = [get_company_symbol,get_stock_price,calculate_rsi,moving_average,predict_stock,candlestick]
 
-llm = HuggingFaceEndpoint(repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1")
-
-chat_model = ChatHuggingFace(llm=llm)
+llm = ChatMistralAI(
+    model="mistral-large-latest",
+    temperature=0,
+)
 
 agent = initialize_agent(tools,
                          llm,
