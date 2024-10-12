@@ -8,6 +8,21 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 
+#general functions
+def calculateRsi(prices, window=14):
+    delta = prices.diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
+    rs = gain / loss
+    return 100 - (100 / (1 + rs))
+
+def calculateMacd(prices, short_window=12, long_window=26, signal_window=9):
+    short_ema = prices.ewm(span=short_window, adjust=False).mean()
+    long_ema = prices.ewm(span=long_window, adjust=False).mean()
+    macd = short_ema - long_ema
+    signal_line = macd.ewm(span=signal_window, adjust=False).mean()
+    return macd, signal_line
+  
 @tool
 def get_company_symbol(symbol:str) -> str:
   """Returns the ticker of the company inputted"""
@@ -104,37 +119,41 @@ def moving_average(ticker:str) -> str:
     return x
 
 @tool
-def predict_stock(ticker:str) -> float:
-  """Predicts the next day's closing value using ticker"""
-
-  # Fetch historical stock data from Yahoo Finance
-  stock_data = yf.download(ticker,period='max')
-
-  # Calculate additional features
-  stock_data['SMA_50'] = stock_data['Close'].rolling(window=50).mean()  # 50-day Simple Moving Average
-  stock_data['SMA_200'] = stock_data['Close'].rolling(window=200).mean()  # 200-day Simple Moving Average
-  stock_data['Daily_Return'] = stock_data['Close'].pct_change()  # Daily Return
-  stock_data['Volatility'] = stock_data['Daily_Return'].rolling(window=20).std()  # 20-day Volatility
-
-  # Drop rows with NaN values
-  stock_data.dropna(inplace=True)
-
-  # Define features and target variable
-  X=stock_data.drop(['Adj Close'] ,axis=1)# Features
-  y = stock_data['Adj Close']
-  regressor = RandomForestRegressor(n_estimators=100, max_depth=None)
-  regressor.fit(X,y)
-  X_latest = X.tail(1)
-  # Make predictions using the latest feature set
-  predictions = regressor.predict(X_latest)
-  # Calculate MSE for each prediction
-  mse_values = mean_squared_error(y.tail(1), predictions)
-
-  # Get the best prediction
-  best_prediction = predictions[0]
-  predicted_price = format(best_prediction,".2f")
-  # Print the best prediction
-  return predicted_price
+def predict_stock(ticker: str) -> float:
+    """Predicts the next day's closing value using ticker"""
+    # Fetch historical stock data from Yahoo Finance
+    stock_data = yf.download(ticker, period='max')
+    
+    # Calculate additional features
+    stock_data['SMA_50'] = stock_data['Close'].rolling(window=50).mean()
+    stock_data['SMA_200'] = stock_data['Close'].rolling(window=200).mean()
+    stock_data['Daily_Return'] = stock_data['Close'].pct_change()
+    stock_data['Volatility'] = stock_data['Daily_Return'].rolling(window=20).std()
+    
+    # Add more features
+    stock_data['RSI'] = calculateRsi(stock_data['Close'], window=14)
+    stock_data['MACD'], stock_data['Signal_Line'] = calculateMacd(stock_data['Close'])
+    
+    # Drop rows with NaN values
+    stock_data.dropna(inplace=True)
+    
+    # Define features and target variable
+    X = stock_data.drop(['Adj Close', 'Close'], axis=1)  # Features
+    y = stock_data['Close']  # Target
+    
+    # Create and train the model using all data
+    regressor = RandomForestRegressor(n_estimators=100, max_depth=None, random_state=42)
+    regressor.fit(X, y)
+    
+    # Evaluate the model on all data
+    train_score = regressor.score(X, y)
+    print(f"R-squared on all data: {train_score:.4f}")
+    
+    # Make prediction for the next day
+    X_latest = X.iloc[-1].to_frame().T
+    predicted_price = regressor.predict(X_latest)[0]
+    
+    return round(predicted_price, 2)
 
 @tool
 def candlestick(ticker:str) -> str:
