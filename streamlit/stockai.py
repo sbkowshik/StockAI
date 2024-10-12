@@ -64,7 +64,7 @@ Action: the action to take, should be one of [GetCompanySymbol, GetStockPrice, C
 Action Input: the input to the action
 Observation: the result of the action... (this Thought/Action/Action Input/Observation can repeat N times)
 Thought: I now know the final answer
-Final Answer: show outputs of all observations and answer to the input question
+Final Answer: Give your answer from understanding the results from the actions, Do not give a netural answer. Understand how the stock is performing lately and then give your opinion.
 Begin!
 Question: {input}
 Thought: {agent_scratchpad}
