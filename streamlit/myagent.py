@@ -250,7 +250,7 @@ def candlestick(ticker: str) -> str:
     Candle_DF = pd.DataFrame(pattern_results.items(), columns=['Pattern', 'Date']).dropna()
 
     Candle_DF_sorted = Candle_DF.sort_values(by='Date', ascending=True)
-    latest_row = Candle_DF_sorted.iloc[-1].item() # Get the most recent pattern
+    latest_row = Candle_DF_sorted.iloc[-1] # Get the most recent pattern
     latest_pattern = latest_row['Pattern']
     latest_date = latest_row['Date']
     trend = pattern_trend.get(latest_pattern, 'Unknown trend')  # Use the appropriate trend dictionary
