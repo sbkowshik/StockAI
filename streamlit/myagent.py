@@ -99,9 +99,9 @@ def moving_average(ticker:str) -> str:
     # Calculate WMA
     data['WMA'] = calculate_wma(data['Close'].values)
     mac = format(data['Close'].iloc[-1].item(), ".2f")
-    mac = format(data['SMA'].iloc[-1].item(), ".2f")
-    mac = format(data['EMA'].iloc[-1].item(), ".2f")
-    mac = format(data['WMA'].iloc[-1].item(), ".2f")
+    mas = format(data['SMA'].iloc[-1].item(), ".2f")
+    mae = format(data['EMA'].iloc[-1].item(), ".2f")
+    maw = format(data['WMA'].iloc[-1].item(), ".2f")
     
     if (mac < mas):
       ta1 = f"Closing Value is less than SMA, It may indicate a downtrend. Closing Value : {mac} , SMA : {mas}. "
