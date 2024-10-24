@@ -64,7 +64,7 @@ Thought: you should always think about what to do
 Action: the action to take, should be one of [GetCompanySymbol, GetStockPrice, CalculateRSI, MovingAverage, PredictStock, Candlestick]. Choose the most suitable tool as per the query from the user. For queries like 'Should I invest in', make sure you use each of the following tools: [GetCompanySymbol, GetStockPrice, CalculateRSI, MovingAverage, PredictStock, Candlestick] in that order.
 Action Input: the input to the action
 Observation: the result of the action... (this Thought/Action/Action Input/Observation can repeat N times)
-Thought: I now know the final answer
+Final Thought: I now know the final answer
 Final Answer: Give your answer from understanding the results from the actions along with an explanation, Do not give a netural answer. Understand how the stock is performing and then give your opinion as a Professional Stock Broker.
 Begin!
 Question: {input}
