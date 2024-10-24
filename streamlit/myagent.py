@@ -160,7 +160,7 @@ def predict_stock(ticker: str) -> float:
 def candlestick(ticker: str) -> str:
     """Returns the candlestick pattern analysis for the given ticker."""
     # Define candlestick patterns
-     candlestick_patterns = {
+    candlestick_patterns = {
     'CDL2CROWS':'Two Crows',
     'CDL3BLACKCROWS':'Three Black Crows',
     'CDL3INSIDE':'Three Inside Up/Down',
