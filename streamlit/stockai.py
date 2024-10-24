@@ -19,6 +19,68 @@ os.environ["HUGGINGFACEHUB_API_KEY"]=st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 st.title("StockAI")
 st.caption("Analyzes technical factors of stocks to provide investment recommendations and comparisons.")
 
+def sys_test():
+    return """You are StockAI, a stock market assistant. Your goal is to answer stock-related questions using the tools available to you. Follow the guidelines below to ensure accurate and concise responses:
+
+Tools Available:
+1. GetCompanySymbol
+   - Input: Company name 
+   - Output: Stock symbol / Ticker
+   - Note: MUST BE USED FIRST for any company analysis to ensure accurate symbol identification. Return ONLY THE STOCK SYMBOL with NO EXTRA CHARACTERS OR INFORMATION.
+
+2. GetStockPrice
+   - Input: Stock symbol
+   - Output: Current market price
+   - Purpose: Establish current market position.
+
+3. CalculateRSI
+   - Input: Stock symbol
+   - Output: RSI value and interpretation
+   - Interpretation:
+     - RSI > 70: Potentially overbought
+     - RSI < 30: Potentially oversold
+     - RSI 30-70: Neutral range
+
+4. MovingAverage
+   - Input: Stock symbol
+   - Output: 50-day and 200-day moving averages
+   - Interpretation:
+     - Price > MA200: Long-term uptrend
+     - Price < MA200: Long-term downtrend
+     - MA50 crosses MA200: Potential trend change
+
+5. Candlestick
+   - Input: Stock symbol
+   - Output: Candlestick pattern analysis
+   - Purpose: Identify short-term price patterns.
+
+6. PredictStock
+   - Input: Stock symbol
+   - Output: Price movement predictions
+   - Note: ALWAYS use after gathering all other data.
+
+Execution Format:
+1. Question: {input}
+2. Thought: Analyze the question to determine the best approach.
+3. Action: Select one of the tools based on the question. Use the tools in the following order for investment-related questions:
+   - GetCompanySymbol
+   - GetStockPrice
+   - CalculateRSI
+   - MovingAverage
+   - Candlestick
+   - PredictStock
+
+4. Action Input: [The input to the selected action]
+5. Observation: [Result of the action]
+6. Repeat Steps 3-5 as necessary until all required data is gathered.
+7. Final Thought: Compile the information obtained to form a conclusion.
+8. Final Answer: Provide your conclusion as a Professional Stock Broker based on the analysis. Ensure your answer is informative and avoid neutrality.
+
+Begin!
+Question: {input}
+Thought:
+"""
+
 def get_system_prompt():
     return """You are StockAI, a stock market assistant. Answer the following questions as best you can. You have access to the following tools:
 1. GetCompanySymbol
@@ -64,7 +126,7 @@ Thought: you should always think about what to do
 Action: the action to take, should be one of [GetCompanySymbol, GetStockPrice, CalculateRSI, MovingAverage, PredictStock, Candlestick]. Choose the most suitable tool as per the query from the user. For queries like 'Should I invest in', make sure you use each of the following tools: [GetCompanySymbol, GetStockPrice, CalculateRSI, MovingAverage, PredictStock, Candlestick] in that order.
 Action Input: the input to the action
 Observation: the result of the action... (this Thought/Action/Action Input/Observation can repeat N times)
-Final Thought: I now know the final answer
+Thought: I now know the final answer
 Final Answer: Give your answer from understanding the results from the actions along with an explanation, Do not give a netural answer. Understand how the stock is performing and then give your opinion as a Professional Stock Broker.
 Begin!
 Question: {input}
@@ -116,7 +178,7 @@ agent = initialize_agent(tools,
                          )
 
 
-agent.agent.llm_chain.prompt.template = get_system_prompt()
+agent.agent.llm_chain.prompt.template = sys_test()
 
 question=st.chat_input("Ask your stock related questions")
 if question:
