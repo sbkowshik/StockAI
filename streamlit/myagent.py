@@ -162,68 +162,69 @@ def candlestick(ticker: str) -> str:
     """Returns the candlestick pattern analysis for the given ticker."""
     # Define candlestick patterns
     candlestick_patterns = {
-    'CDL2CROWS':'Two Crows',
-    'CDL3BLACKCROWS':'Three Black Crows',
-    'CDL3INSIDE':'Three Inside Up/Down',
-    'CDL3LINESTRIKE':'Three-Line Strike',
-    'CDL3OUTSIDE':'Three Outside Up/Down',
-    'CDL3STARSINSOUTH':'Three Stars In The South',
-    'CDL3WHITESOLDIERS':'Three Advancing White Soldiers',
-    'CDLABANDONEDBABY':'Abandoned Baby',
-    'CDLADVANCEBLOCK':'Advance Block',
-    'CDLBELTHOLD':'Belt-hold',
-    'CDLBREAKAWAY':'Breakaway',
-    'CDLCLOSINGMARUBOZU':'Closing Marubozu',
-    'CDLCONCEALBABYSWALL':'Concealing Baby Swallow',
-    'CDLCOUNTERATTACK':'Counterattack',
-    'CDLDARKCLOUDCOVER':'Dark Cloud Cover',
-    'CDLDOJI':'Doji',
-    'CDLDOJISTAR':'Doji Star',
-    'CDLDRAGONFLYDOJI':'Dragonfly Doji',
-    'CDLENGULFING':'Engulfing Pattern',
-    'CDLEVENINGDOJISTAR':'Evening Doji Star',
-    'CDLEVENINGSTAR':'Evening Star',
-    'CDLGAPSIDESIDEWHITE':'Up/Down-gap side-by-side white lines',
-    'CDLGRAVESTONEDOJI':'Gravestone Doji',
-    'CDLHAMMER':'Hammer',
-    'CDLHANGINGMAN':'Hanging Man',
-    'CDLHARAMI':'Harami Pattern',
-    'CDLHARAMICROSS':'Harami Cross Pattern',
-    'CDLHIGHWAVE':'High-Wave Candle',
-    'CDLHIKKAKE':'Hikkake Pattern',
-    'CDLHIKKAKEMOD':'Modified Hikkake Pattern',
-    'CDLHOMINGPIGEON':'Homing Pigeon',
-    'CDLIDENTICAL3CROWS':'Identical Three Crows',
-    'CDLINNECK':'In-Neck Pattern',
-    'CDLINVERTEDHAMMER':'Inverted Hammer',
-    'CDLKICKING':'Kicking',
-    'CDLKICKINGBYLENGTH':'Kicking - bull/bear determined by the longer marubozu',
-    'CDLLADDERBOTTOM':'Ladder Bottom',
-    'CDLLONGLEGGEDDOJI':'Long Legged Doji',
-    'CDLLONGLINE':'Long Line Candle',
-    'CDLMARUBOZU':'Marubozu',
-    'CDLMATCHINGLOW':'Matching Low',
-    'CDLMATHOLD':'Mat Hold',
-    'CDLMORNINGDOJISTAR':'Morning Doji Star',
-    'CDLMORNINGSTAR':'Morning Star',
-    'CDLONNECK':'On-Neck Pattern',
-    'CDLPIERCING':'Piercing Pattern',
-    'CDLRICKSHAWMAN':'Rickshaw Man',
-    'CDLRISEFALL3METHODS':'Rising/Falling Three Methods',
-    'CDLSEPARATINGLINES':'Separating Lines',
-    'CDLSHOOTINGSTAR':'Shooting Star',
-    'CDLSHORTLINE':'Short Line Candle',
-    'CDLSPINNINGTOP':'Spinning Top',
-    'CDLSTALLEDPATTERN':'Stalled Pattern',
-    'CDLSTICKSANDWICH':'Stick Sandwich',
-    'CDLTAKURI':'Takuri (Dragonfly Doji with very long lower shadow)',
-    'CDLTASUKIGAP':'Tasuki Gap',
-    'CDLTHRUSTING':'Thrusting Pattern',
-    'CDLTRISTAR':'Tristar Pattern',
-    'CDLUNIQUE3RIVER':'Unique 3 River',
-    'CDLUPSIDEGAP2CROWS':'Upside Gap Two Crows',
-    'CDLXSIDEGAP3METHODS':'Upside/Downside Gap Three Methods'
-  }
+        'CDL2CROWS':'Two Crows',
+        'CDL3BLACKCROWS':'Three Black Crows',
+        'CDL3INSIDE':'Three Inside Up/Down',
+        'CDL3LINESTRIKE':'Three-Line Strike',
+        'CDL3OUTSIDE':'Three Outside Up/Down',
+        'CDL3STARSINSOUTH':'Three Stars In The South',
+        'CDL3WHITESOLDIERS':'Three Advancing White Soldiers',
+        'CDLABANDONEDBABY':'Abandoned Baby',
+        'CDLADVANCEBLOCK':'Advance Block',
+        'CDLBELTHOLD':'Belt-hold',
+        'CDLBREAKAWAY':'Breakaway',
+        'CDLCLOSINGMARUBOZU':'Closing Marubozu',
+        'CDLCONCEALBABYSWALL':'Concealing Baby Swallow',
+        'CDLCOUNTERATTACK':'Counterattack',
+        'CDLDARKCLOUDCOVER':'Dark Cloud Cover',
+        'CDLDOJI':'Doji',
+        'CDLDOJISTAR':'Doji Star',
+        'CDLDRAGONFLYDOJI':'Dragonfly Doji',
+        'CDLENGULFING':'Engulfing Pattern',
+        'CDLEVENINGDOJISTAR':'Evening Doji Star',
+        'CDLEVENINGSTAR':'Evening Star',
+        'CDLGAPSIDESIDEWHITE':'Up/Down-gap side-by-side white lines',
+        'CDLGRAVESTONEDOJI':'Gravestone Doji',
+        'CDLHAMMER':'Hammer',
+        'CDLHANGINGMAN':'Hanging Man',
+        'CDLHARAMI':'Harami Pattern',
+        'CDLHARAMICROSS':'Harami Cross Pattern',
+        'CDLHIGHWAVE':'High-Wave Candle',
+        'CDLHIKKAKE':'Hikkake Pattern',
+        'CDLHIKKAKEMOD':'Modified Hikkake Pattern',
+        'CDLHOMINGPIGEON':'Homing Pigeon',
+        'CDLIDENTICAL3CROWS':'Identical Three Crows',
+        'CDLINNECK':'In-Neck Pattern',
+        'CDLINVERTEDHAMMER':'Inverted Hammer',
+        'CDLKICKING':'Kicking',
+        'CDLKICKINGBYLENGTH':'Kicking - bull/bear determined by the longer marubozu',
+        'CDLLADDERBOTTOM':'Ladder Bottom',
+        'CDLLONGLEGGEDDOJI':'Long Legged Doji',
+        'CDLLONGLINE':'Long Line Candle',
+        'CDLMARUBOZU':'Marubozu',
+        'CDLMATCHINGLOW':'Matching Low',
+        'CDLMATHOLD':'Mat Hold',
+        'CDLMORNINGDOJISTAR':'Morning Doji Star',
+        'CDLMORNINGSTAR':'Morning Star',
+        'CDLONNECK':'On-Neck Pattern',
+        'CDLPIERCING':'Piercing Pattern',
+        'CDLRICKSHAWMAN':'Rickshaw Man',
+        'CDLRISEFALL3METHODS':'Rising/Falling Three Methods',
+        'CDLSEPARATINGLINES':'Separating Lines',
+        'CDLSHOOTINGSTAR':'Shooting Star',
+        'CDLSHORTLINE':'Short Line Candle',
+        'CDLSPINNINGTOP':'Spinning Top',
+        'CDLSTALLEDPATTERN':'Stalled Pattern',
+        'CDLSTICKSANDWICH':'Stick Sandwich',
+        'CDLTAKURI':'Takuri (Dragonfly Doji with very long lower shadow)',
+        'CDLTASUKIGAP':'Tasuki Gap',
+        'CDLTHRUSTING':'Thrusting Pattern',
+        'CDLTRISTAR':'Tristar Pattern',
+        'CDLUNIQUE3RIVER':'Unique 3 River',
+        'CDLUPSIDEGAP2CROWS':'Upside Gap Two Crows',
+        'CDLXSIDEGAP3METHODS':'Upside/Downside Gap Three Methods'
+    }
+
     # Download historical data
     start_date = datetime.today() - timedelta(days=100)
     df = yf.download(ticker, start=start_date, end=datetime.today())
@@ -231,7 +232,8 @@ def candlestick(ticker: str) -> str:
     df = df[['Date', 'Open', 'High', 'Low', 'Close']]
 
     if df.empty:
-        print("booo")
+        return "No historical data available for the specified ticker."
+
     # Store results for patterns
     pattern_results = {}
 
@@ -250,9 +252,16 @@ def candlestick(ticker: str) -> str:
     # Create a summary DataFrame for detected patterns
     Candle_DF = pd.DataFrame(pattern_results.items(), columns=['Pattern', 'Date']).dropna()
 
+    # Check if Candle_DF is empty
+    if Candle_DF.empty:
+        return "No candlestick patterns detected."
+
     Candle_DF_sorted = Candle_DF.sort_values(by='Date', ascending=True)
-    latest_row = Candle_DF_sorted.iloc[-1] # Get the most recent pattern
+
+    # Get the most recent pattern
+    latest_row = Candle_DF_sorted.iloc[-1]
     latest_pattern = latest_row['Pattern']
     latest_date = latest_row['Date']
     trend = pattern_trend.get(latest_pattern, 'Unknown trend')  # Use the appropriate trend dictionary
     return f'Latest Date: {latest_date.strftime("%Y-%m-%d")}\nPattern: {latest_pattern}\nTrend: {trend}'
+
