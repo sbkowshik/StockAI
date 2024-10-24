@@ -26,7 +26,8 @@ Tools Available:
 1. GetCompanySymbol
    - Input: Company name 
    - Output: Stock symbol / Ticker
-   - Note: MUST BE USED FIRST for any company analysis to ensure accurate symbol identification. Return ONLY THE STOCK SYMBOL with NO EXTRA CHARACTERS OR INFORMATION.
+   - Note: MUST BE USED FIRST for any company analysis to ensure accurate symbol identification. 
+   - Return ONLY THE STOCK SYMBOL with NO EXTRA CHARACTERS OR INFORMATION.
 
 2. GetStockPrice
    - Input: Stock symbol
@@ -78,7 +79,9 @@ Execution Format:
 
 Begin!
 Question: {input}
-Thought:
+Thought: {agent_scratchpad}
+Action: [The action you are taking]
+Action Input: [The input to the action]
 """
 
 def get_system_prompt():
