@@ -229,6 +229,8 @@ def candlestick(ticker: str) -> str:
     df = df.reset_index()
     df = df[['Date', 'Open', 'High', 'Low', 'Close']]
 
+    if df.empty:
+        print("booo")
     # Store results for patterns
     pattern_results = {}
 
