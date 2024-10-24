@@ -61,7 +61,7 @@ def get_system_prompt():
 Use the following format:
 Question: the input question you must answer
 Thought: you should always think about what to do
-Action: the tool or tools to be used, should be from the list: [GetCompanySymbol, GetStockPrice, CalculateRSI, MovingAverage, PredictStock, Candlestick]. Choose the most suitable tool as per the query from the user. For queries like 'Should I invest in', make sure you use each of the following tools: [GetCompanySymbol, GetStockPrice, CalculateRSI, MovingAverage, PredictStock, Candlestick] in that order.
+Action: the action to take, should be one of [GetCompanySymbol, GetStockPrice, CalculateRSI, MovingAverage, PredictStock, Candlestick]. Choose the most suitable tool as per the query from the user. For queries like 'Should I invest in', make sure you use each of the following tools: [GetCompanySymbol, GetStockPrice, CalculateRSI, MovingAverage, PredictStock, Candlestick] in that order.
 Action Input: the input to the action
 Observation: the result of the action... (this Thought/Action/Action Input/Observation can repeat N times)
 Thought: I now know the final answer
