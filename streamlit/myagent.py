@@ -79,7 +79,7 @@ def moving_average(ticker:str) -> str:
     # Define the function to calculate WMA
     def calculate_wma(prices):
         weights = np.arange(1, 15)
-        wma = np.convolve(prices, weights, mode='valid') / weights.sum()
+        wma = np.convolve(prices.flatten(), weights.flatten(), mode='valid') / weights.sum()
         return np.concatenate((np.full(13, np.nan), wma), axis=0)
 
     # Download stock data
