@@ -238,7 +238,7 @@ def candlestick(ticker: str) -> str:
             try:
                 pattern_result = getattr(talib, pattern)(df['Open'], df['High'], df['Low'], df['Close'])
                 df[pattern_name] = pattern_result.astype(bool)
-                pattern_results[pattern_name] = df[df[pattern_name]]['Date'].iloc[-1].item() if not df[df[pattern_name]].empty else None
+                pattern_results[pattern_name] = df[df[pattern_name]]['Date'].iloc[-1] if not df[df[pattern_name]].empty else None
             except Exception as e:
                 print(f"Error processing pattern {pattern_name}: {e}")
         else:
@@ -248,7 +248,7 @@ def candlestick(ticker: str) -> str:
     Candle_DF = pd.DataFrame(pattern_results.items(), columns=['Pattern', 'Date']).dropna()
     if not Candle_DF.empty:
         Candle_DF_sorted = Candle_DF.sort_values(by='Date', ascending=True)
-        latest_row = Candle_DF_sorted.iloc[-1].item()  # Get the most recent pattern
+        latest_row = Candle_DF_sorted.iloc[-1].item() # Get the most recent pattern
         latest_pattern = latest_row['Pattern']
         latest_date = latest_row['Date']
         trend = pattern_trend.get(latest_pattern, 'Unknown trend')  # Use the appropriate trend dictionary
