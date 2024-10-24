@@ -180,16 +180,6 @@ def candlestick(ticker: str) -> str:
             patterns.append('Doji')
         elif (close_price - low_price) < 0.1 * (high_price - low_price) and (open_price - low_price) < 0.1 * (high_price - low_price):  # Hammer
             patterns.append('Hammer')
-        elif (high_price - close_price) < 0.1 * (high_price - low_price) and (high_price - open_price) < 0.1 * (high_price - low_price):  # Shooting Star
-            patterns.append('Shooting Star')
-        elif (high_price - close_price) < 0.1 * (high_price - low_price) and (open_price - low_price) < 0.1 * (high_price - low_price):  # Inverted Hammer
-            patterns.append('Inverted Hammer')
-        elif (open_price - low_price) < 0.1 * (high_price - low_price) and (close_price - low_price) < 0.1 * (high_price - low_price):  # Hanging Man
-            patterns.append('Hanging Man')
-        elif (close_price > open_price) and (previous_close < previous_open) and (previous_close < low_price):  # Morning Star
-            patterns.append('Morning Star')
-        elif (close_price < open_price) and (previous_close > previous_open) and (previous_close > high_price):  # Evening Star
-            patterns.append('Evening Star')
         else:
             patterns.append('No Pattern')
             
