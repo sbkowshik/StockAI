@@ -246,12 +246,10 @@ def candlestick(ticker: str) -> str:
     
     # Create a summary DataFrame for detected patterns
     Candle_DF = pd.DataFrame(pattern_results.items(), columns=['Pattern', 'Date']).dropna()
-    if not Candle_DF.empty:
-        Candle_DF_sorted = Candle_DF.sort_values(by='Date', ascending=True)
-        latest_row = Candle_DF_sorted.iloc[-1].item() # Get the most recent pattern
-        latest_pattern = latest_row['Pattern']
-        latest_date = latest_row['Date']
-        trend = pattern_trend.get(latest_pattern, 'Unknown trend')  # Use the appropriate trend dictionary
-        return f'Latest Date: {latest_date.strftime("%Y-%m-%d")}\nPattern: {latest_pattern}\nTrend: {trend}'
-    else:
-        return 'No significant candlestick patterns detected.'
+
+    Candle_DF_sorted = Candle_DF.sort_values(by='Date', ascending=True)
+    latest_row = Candle_DF_sorted.iloc[-1].item() # Get the most recent pattern
+    latest_pattern = latest_row['Pattern']
+    latest_date = latest_row['Date']
+    trend = pattern_trend.get(latest_pattern, 'Unknown trend')  # Use the appropriate trend dictionary
+    return f'Latest Date: {latest_date.strftime("%Y-%m-%d")}\nPattern: {latest_pattern}\nTrend: {trend}'
