@@ -157,10 +157,9 @@ def predict_stock(ticker: str) -> float:
     return round(predicted_price, 2)
 
 @tool
-def candlestick(ticker: str) -> str:
-    """Returns the candlestick pattern analysis for the given ticker."""
-    # Define candlestick patterns
-    candlestick_patterns = {
+def candlestick(ticker:str) -> str:
+  """ReturnReturns the candlestick pattern as well as its learning by ticker"""
+  candlestick_patterns = {
     'CDL2CROWS':'Two Crows',
     'CDL3BLACKCROWS':'Three Black Crows',
     'CDL3INSIDE':'Three Inside Up/Down',
@@ -223,35 +222,99 @@ def candlestick(ticker: str) -> str:
     'CDLUPSIDEGAP2CROWS':'Upside Gap Two Crows',
     'CDLXSIDEGAP3METHODS':'Upside/Downside Gap Three Methods'
   }
-    # Download historical data
-    start_date = datetime.today() - timedelta(days=100)
-    df = yf.download(ticker, start=start_date, end=datetime.today())
-    df = df.reset_index()
-    df = df[['Date', 'Open', 'High', 'Low', 'Close']]
+  start_date = datetime.today() - timedelta(days=100)
+  df = yf.download(ticker, start=start_date, end=datetime.today())
+  df = df.reset_index()
+  df=df.drop(columns=['Adj Close','Volume'])
+  for pattern, pattern_name in candlestick_patterns.items():
+      pattern_result = getattr(talib, pattern)(df['Open'], df['High'], df['Low'], df['Close'])
+      df[pattern_name] = pattern_result.astype(bool)
+  data=df
+  data['PositiveEngulfing'] = data['Engulfing Pattern'] > 0
+  data['NegativeEngulfing'] = data['Engulfing Pattern'] < 0
+  data.drop(columns=['Engulfing Pattern'])
+  pattern_trend = {
+    'Two Crows': 'bearish',
+    'Three Black Crows': 'bearish',
+    'Three Inside Up/Down': 'bullish/bearish',
+    'Three-Line Strike': 'bullish/bearish',
+    'Three Outside Up/Down': 'bullish/bearish',
+    'Three Stars In The South': 'bullish',
+    'Three Advancing White Soldiers': 'bullish',
+    'Abandoned Baby': 'bullish',
+    'Advance Block': 'bearish',
+    'Belt-hold': 'bullish',
+    'Breakaway': 'bullish',
+    'Closing Marubozu': 'bullish',
+    'Concealing Baby Swallow': 'bullish',
+    'Counterattack': 'bullish',
+    'Dark Cloud Cover': 'bearish',
+    'Doji': 'neutral',
+    'Doji Star': 'neutral',
+    'Dragonfly Doji': 'bullish',
+    'Engulfing Pattern': 'bullish',
+    'Evening Doji Star': 'bearish',
+    'Evening Star': 'bearish',
+    'Up/Down-gap side-by-side white lines': 'bullish',
+    'Gravestone Doji': 'bearish',
+    'Hammer': 'bullish',
+    'Hanging Man': 'bearish',
+    'Harami Pattern': 'bullish',
+    'Harami Cross Pattern': 'bullish',
+    'High-Wave Candle': 'neutral',
+    'Hikkake Pattern': 'neutral',
+    'Modified Hikkake Pattern': 'neutral',
+    'Homing Pigeon': 'bullish',
+    'Identical Three Crows': 'bearish',
+    'In-Neck Pattern': 'bearish',
+    'Inverted Hammer': 'bullish',
+    'Kicking': 'bullish',
+    'Kicking - bull/bear determined by the longer marubozu': 'bullish',
+    'Ladder Bottom': 'bullish',
+    'Long Legged Doji': 'neutral',
+    'Long Line Candle': 'neutral',
+    'Marubozu': 'bullish',
+    'Matching Low': 'bullish',
+    'Mat Hold': 'bullish',
+    'Morning Doji Star': 'bullish',
+    'Morning Star': 'bullish',
+    'On-Neck Pattern': 'bearish',
+    'Piercing Pattern': 'bullish',
+    'Rickshaw Man': 'neutral',
+    'Rising/Falling Three Methods': 'bullish',
+    'Separating Lines': 'bullish',
+    'Shooting Star': 'bearish',
+    'Short Line Candle': 'neutral',
+    'Spinning Top': 'neutral',
+    'Stalled Pattern': 'neutral',
+    'Stick Sandwich': 'neutral',
+    'Takuri (Dragonfly Doji with very long lower shadow)': 'bullish',
+    'Tasuki Gap': 'neutral',
+    'Thrusting Pattern': 'bullish',
+    'Tristar Pattern': 'neutral',
+    'Unique 3 River': 'bullish',
+    'Upside Gap Two Crows': 'bearish',
+    'Upside/Downside Gap Three Methods': 'bullish',
+    'PositiveEngulfing': 'bullish',
+    'NegativeEngulfing': 'bearish'
+  }
+  pattern_columns = data.columns[5:]
 
-    # Store results for patterns
-    pattern_results = {}
+  latest_dates = {}
 
-    for pattern, pattern_name in candlestick_patterns.items():
-        # Check if the pattern function exists in talib
-        if hasattr(talib, pattern):
-            try:
-                pattern_result = getattr(talib, pattern)(df['Open'], df['High'], df['Low'], df['Close'])
-                df[pattern_name] = pattern_result.astype(bool)
-                pattern_results[pattern_name] = df[df[pattern_name]]['Date'].iloc[-1] if not df[df[pattern_name]].empty else None
-            except Exception as e:
-                print(f"Error processing pattern {pattern_name}: {e}")
-        else:
-            print(f"Pattern function {pattern} not found in TA-Lib.")
-    
-    # Create a summary DataFrame for detected patterns
-    Candle_DF = pd.DataFrame(pattern_results.items(), columns=['Pattern', 'Date']).dropna()
-    if not Candle_DF.empty:
-        Candle_DF_sorted = Candle_DF.sort_values(by='Date', ascending=True)
-        latest_row = Candle_DF_sorted.iloc[-1].item() # Get the most recent pattern
-        latest_pattern = latest_row['Pattern']
-        latest_date = latest_row['Date']
-        trend = pattern_trend.get(latest_pattern, 'Unknown trend')  # Use the appropriate trend dictionary
-        return f'Latest Date: {latest_date.strftime("%Y-%m-%d")}\nPattern: {latest_pattern}\nTrend: {trend}'
-    else:
-        return 'No significant candlestick patterns detected.'
+  for column in pattern_columns:
+      pattern_data = data[data[column]]
+      if not pattern_data.empty:
+          latest_date = pattern_data['Date'].iloc[-1]
+          latest_dates[column] = latest_date
+
+  Candle_DF = pd.DataFrame(list(latest_dates.items()), columns=['Date','Pattern'])
+  Candle_DF_sorted = Candle_DF.sort_values(by='Date', ascending=True)
+  latest_row = Candle_DF_sorted.loc[2]
+  latest_date = latest_row['Date']
+  latest_pattern = latest_row['Pattern']
+  if not latest_pattern:
+    x=f'Latest Date: {latest_pattern} \nPattern: {latest_date} \nTrend: {pattern_trend[latest_date]}'
+    return x
+  else:
+    return "No significant candlestick patterns detected."
